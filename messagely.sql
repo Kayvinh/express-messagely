@@ -29,6 +29,12 @@ VALUES
 ('kevin_nguyen', 'mypassword', 'Kevin', 'Nguyen', '123-456-7890', NOW()),
 ('will_squires', 'mypassword', 'Will', 'Squires', '987-654-3210', NOW());
 
+INSERT INTO messages (from_username, to_username, body, sent_at)
+VALUES
+('kevin_nguyen', 'will_squires', 'k -> w', NOW()),
+('will_squires', 'kevin_nguyen', 'w -> k',  NOW());
+
+
 
 
 \echo 'Delete and recreate messagely_test db?'
