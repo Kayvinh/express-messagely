@@ -1,6 +1,7 @@
 const { BCRYPT_WORK_FACTOR } = require("../config");
 const bcrypt = require("bcrypt");
 const db = require("../db");
+const { UnauthorizedError } = require("../expressError")
 
 
 "use strict";
@@ -26,17 +27,31 @@ class User {
       [username, hashedPassword, first_name, last_name, phone]
     );
 
-    return result.rows[0]; 
+    return result.rows[0];
   }
 
   /** Authenticate: is username/password valid? Returns boolean. */
 
   static async authenticate(username, password) {
+    const result = await db.query(
+      `SELECT password
+        FROM users
+        WHERE username = $1`, [username]
+    );
+    if (result.rows[0]) {
+      return (await bcrypt.compare(password, results.rows[0].password) === true);
+    }
+    throw UnauthorizedError("Invalid user/password");
   }
 
   /** Update last_login_at for user */
 
   static async updateLoginTimestamp(username) {
+    await db.query(
+      `INSERT INTO users (last_login)
+       VALUES (NOW())
+       WHERE username = $1`, [username]
+    );
   }
 
   /** All: basic info on all users:
