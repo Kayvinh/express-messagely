@@ -24,6 +24,13 @@ CREATE TABLE messages (
   read_at TIMESTAMP WITH TIME ZONE);
 
 
+INSERT INTO users (username, password, first_name, last_name, phone, join_at)
+VALUES
+('kevin_nguyen', 'mypassword', 'Kevin', 'Nguyen', '123-456-7890', NOW()),
+('will_squires', 'mypassword', 'Will', 'Squires', '987-654-3210', NOW());
+
+
+
 \echo 'Delete and recreate messagely_test db?'
 \prompt 'Return for yes or control-C to cancel > ' foo
 
