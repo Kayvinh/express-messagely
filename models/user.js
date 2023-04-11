@@ -79,6 +79,7 @@ class User {
         FROM users
         ORDER BY username`
     );
+    console.log(results.rows);
     return results.rows;
   }
 
