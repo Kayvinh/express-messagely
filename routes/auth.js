@@ -15,8 +15,8 @@ router.post("/login", async function (req, res) {
     const { username, password } = req.body;
 
     if(User.authenticate(username, password)) {
-        const token = jwt.sign({ username }, SECRET_KEY);
-        return res.json({ token });
+        const _token = jwt.sign({ username }, SECRET_KEY);
+        return res.json({ _token });
     }
 });
 
@@ -33,8 +33,8 @@ router.post("/register", async function (req, res) {
     const newUser = await User.register({ username, password, first_name, last_name, phone })
     
     if(User.authenticate(newUser.username, newUser.password)) {
-        const token = jwt.sign({ username }, SECRET_KEY);
-        return res.json({ token });
+        const _token = jwt.sign({ username }, SECRET_KEY);
+        return res.json({ _token });
     }
 });
 
