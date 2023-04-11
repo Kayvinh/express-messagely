@@ -3,7 +3,7 @@
 const Router = require("express").Router;
 const router = new Router();
 const jwt = require("jsonwebtoken");
-const { BadRequestError } = require("../expressError");
+const { BadRequestError, UnauthorizedError } = require("../expressError");
 const { SECRET_KEY } = require("../config");
 
 const User = require("../models/user");
@@ -11,14 +11,18 @@ const User = require("../models/user");
 /** POST /login: {username, password} => {token} */
 
 router.post("/login", async function (req, res) {
-    if (req.body === undefined) throw new BadRequestError();//TODO: check for keys, not body
+    if (!("username" in req.body && "body" in req.body)) {
+        throw new BadRequestError();
+    }
+    
     const { username, password } = req.body;
 
-    if(await User.authenticate(username, password)) { //TODO: this is async, must await. === true
+    if(await User.authenticate(username, password)) {
         const _token = jwt.sign({ username }, SECRET_KEY);
         return res.json({ _token });
     }
-    //TODO: else return unauthorized
+
+    throw new UnauthorizedError();
 });
 
 
@@ -33,7 +37,7 @@ router.post("/register", async function (req, res) {
 
     const newUser = await User.register({ username, password, first_name, last_name, phone })
     
-    if(User.authenticate(newUser.username, newUser.password)) {//don't need to authenticate, they just gave us credentials
+    if(await User.authenticate(newUser.username, newUser.password)) {//don't need to authenticate, they just gave us credentials
         const _token = jwt.sign({ username }, SECRET_KEY);
         return res.json({ _token });
     }

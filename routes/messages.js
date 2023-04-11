@@ -4,12 +4,10 @@ const Router = require("express").Router;
 const router = new Router();
 
 const Message = require("../models/message")
-const { authenticateJWT, ensureLoggedIn, ensureCorrectUser }
+const { ensureLoggedIn }
     = require("../middleware/auth");
 const { UnauthorizedError, BadRequestError } = require("../expressError");
 
-router.use(authenticateJWT);//handled in app
-router.use(ensureLoggedIn);//use explicitely in routes
 
 
 /** GET /:id - get detail of message.
@@ -25,17 +23,19 @@ router.use(ensureLoggedIn);//use explicitely in routes
  *
  **/
 
-router.get("/:id", async function (req, res) {
+router.get("/:id", 
+    ensureLoggedIn,
+    async function (req, res) {
     const id = req.params.id;
     const message = await Message.get(id);
     const username = res.locals.user.username;
-    //TODO: more common pattern is to reverse this, fail fast
-    if (username === message.to_user.username ||
-        username === message.from_user.username) {
-        return res.json({ message });
-    }
-    throw new UnauthorizedError();
 
+    if (username !== message.to_user.username &&
+        username !== message.from_user.username) {
+        throw new UnauthorizedError();
+    }
+
+    return res.json({ message });
 });
 
 
@@ -47,8 +47,11 @@ router.get("/:id", async function (req, res) {
  **/
 
 router.post("/",
+    ensureLoggedIn,
     async function (req, res) {
-        if (req.body === undefined) throw new BadRequestError();
+        if (!("username" in req.body && "body" in req.body)) {
+            throw new BadRequestError();
+        }
 
         const { to_username, body } = req.body;
         const from_username = res.locals.user.username;
@@ -67,19 +70,19 @@ router.post("/",
  *
  **/
 
-router.post("/:id/read", async function(req, res) {
-    if (req.body === undefined) throw new BadRequestError();//not needed here, might not actually be working as we intend in other spots. maybe check if right keys
-
+router.post("/:id/read",
+    ensureLoggedIn,
+    async function (req, res) {
     const id = req.params.id;
     const username = res.locals.user.username;
     const message = await Message.get(id);
-    //TODO: flip if statement
-    if (username === message.to_user.username) {
-        const response = await Message.markRead(id);
-        return res.json({message: response});
-    }
-    throw new UnauthorizedError();
 
+    if (username !== message.to_user.username) {
+        throw new UnauthorizedError();
+    }
+
+    const response = await Message.markRead(id);
+    return res.json({ message: response });
 });
 
 

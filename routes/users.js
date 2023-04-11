@@ -2,13 +2,11 @@
 
 const Router = require("express").Router;
 const router = new Router();
-const { authenticateJWT, ensureLoggedIn, ensureCorrectUser }
+const { ensureLoggedIn, ensureCorrectUser }
     = require("../middleware/auth");
 
 const User = require("../models/user");
 
-router.use(authenticateJWT);//handled in app.js
-router.use(ensureLoggedIn);//better explicitly in routes
 
 
 /** GET / - get list of users.
@@ -17,6 +15,7 @@ router.use(ensureLoggedIn);//better explicitly in routes
  *
  **/
 router.get("/",
+    ensureLoggedIn,
     async function (req, res) {
         const users = await User.all();
 
@@ -40,6 +39,7 @@ router.get("/:username",
     });
 
 /** GET /:username/to - get messages to user
+ *  Makes sure correct user is logged in
  *
  * => {messages: [{id,
  *                 body,
@@ -48,7 +48,7 @@ router.get("/:username",
  *                 from_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
-//TODO: update doctring to mention ensurecorrectuser
+
 router.get("/:username/to",
     ensureCorrectUser,
     async function (req, res) {
