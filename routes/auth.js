@@ -11,13 +11,14 @@ const User = require("../models/user");
 /** POST /login: {username, password} => {token} */
 
 router.post("/login", async function (req, res) {
-    if (req.body === undefined) throw new BadRequestError();
+    if (req.body === undefined) throw new BadRequestError();//TODO: check for keys, not body
     const { username, password } = req.body;
 
-    if(User.authenticate(username, password)) {
+    if(await User.authenticate(username, password)) { //TODO: this is async, must await. === true
         const _token = jwt.sign({ username }, SECRET_KEY);
         return res.json({ _token });
     }
+    //TODO: else return unauthorized
 });
 
 
@@ -32,7 +33,7 @@ router.post("/register", async function (req, res) {
 
     const newUser = await User.register({ username, password, first_name, last_name, phone })
     
-    if(User.authenticate(newUser.username, newUser.password)) {
+    if(User.authenticate(newUser.username, newUser.password)) {//don't need to authenticate, they just gave us credentials
         const _token = jwt.sign({ username }, SECRET_KEY);
         return res.json({ _token });
     }

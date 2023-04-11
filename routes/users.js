@@ -7,8 +7,8 @@ const { authenticateJWT, ensureLoggedIn, ensureCorrectUser }
 
 const User = require("../models/user");
 
-router.use(authenticateJWT);
-router.use(ensureLoggedIn);
+router.use(authenticateJWT);//handled in app.js
+router.use(ensureLoggedIn);//better explicitly in routes
 
 
 /** GET / - get list of users.
@@ -48,7 +48,7 @@ router.get("/:username",
  *                 from_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
-
+//TODO: update doctring to mention ensurecorrectuser
 router.get("/:username/to",
     ensureCorrectUser,
     async function (req, res) {

@@ -8,8 +8,8 @@ const { authenticateJWT, ensureLoggedIn, ensureCorrectUser }
     = require("../middleware/auth");
 const { UnauthorizedError, BadRequestError } = require("../expressError");
 
-router.use(authenticateJWT);
-router.use(ensureLoggedIn);
+router.use(authenticateJWT);//handled in app
+router.use(ensureLoggedIn);//use explicitely in routes
 
 
 /** GET /:id - get detail of message.
@@ -29,7 +29,7 @@ router.get("/:id", async function (req, res) {
     const id = req.params.id;
     const message = await Message.get(id);
     const username = res.locals.user.username;
-
+    //TODO: more common pattern is to reverse this, fail fast
     if (username === message.to_user.username ||
         username === message.from_user.username) {
         return res.json({ message });
@@ -68,12 +68,12 @@ router.post("/",
  **/
 
 router.post("/:id/read", async function(req, res) {
-    if (req.body === undefined) throw new BadRequestError();
+    if (req.body === undefined) throw new BadRequestError();//not needed here, might not actually be working as we intend in other spots. maybe check if right keys
 
     const id = req.params.id;
     const username = res.locals.user.username;
     const message = await Message.get(id);
-
+    //TODO: flip if statement
     if (username === message.to_user.username) {
         const response = await Message.markRead(id);
         return res.json({message: response});
